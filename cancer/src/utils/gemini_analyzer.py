@@ -34,10 +34,13 @@ class GeminiAnalyzer:
         """
         # Cargar configuración
         self.config = load_config(Path(config_path) if config_path else None)
-        
-        # Configurar logging
-        self.logger = configure_logging()
+
+        # Configurar logging y logger de módulo
+        configure_logging()
         self.logger = logging.getLogger(__name__)
+
+        # Descargo legal centralizado
+        self._disclaimer_text = str(self.config.legal.report_disclaimer)
 
         # Validar disponibilidad de Gemini
         if not GENAI_AVAILABLE:
@@ -50,10 +53,24 @@ class GeminiAnalyzer:
             self.model: Any = genai.GenerativeModel(self.config.gemini.model)  # type: ignore[attr-defined]
         
         # Parámetros de generación
-        self.generation_config: Dict[str, Any] = {
+        self.generation_config = {
             'temperature': self.config.gemini.temperature,
             'max_output_tokens': self.config.gemini.max_tokens,
         }
+
+    def _append_disclaimer(self, text: str) -> str:
+        """Adjunta el descargo legal a una salida de texto si no está presente."""
+        try:
+            disc = self._disclaimer_text.strip()
+        except Exception:
+            disc = ""
+        if not disc:
+            return text
+        low = text.lower()
+        if disc.lower() in low:
+            return text
+        sep = "\n\n" if not text.endswith("\n") else "\n"
+        return f"{text}{sep}{disc}"
 
     def _call_with_retry(self, parts, *, retries: int = 2, backoff: float = 0.75):
         """Envuelve generate_content con reintentos simples (rate limits/temporales)."""
@@ -97,15 +114,20 @@ class GeminiAnalyzer:
             if not GENAI_AVAILABLE:
                 raise RuntimeError(GENAI_UNAVAILABLE_MSG)
 
+            self.logger.info(
+                "Gemini analyze_medical_image: type=%s, model=%s, image=%s",
+                analysis_type, getattr(self.config.gemini, 'model', ''), image_path
+            )
             response = self._call_with_retry([prompt, image])
             
             result = {
                 'image_path': image_path,
                 'analysis_type': analysis_type,
-                'gemini_response': response.text,
+                'gemini_response': self._append_disclaimer(response.text),
                 'confidence_indicators': self._extract_confidence_indicators(response.text),
                 'findings': self._extract_findings(response.text),
-                'recommendations': self._extract_recommendations(response.text)
+                'recommendations': self._extract_recommendations(response.text),
+                'disclaimer_added': True,
             }
             
             self.logger.info(f"Análisis completado para {image_path}")
@@ -163,15 +185,20 @@ class GeminiAnalyzer:
             if not GENAI_AVAILABLE:
                 raise RuntimeError(GENAI_UNAVAILABLE_MSG)
 
+            self.logger.info(
+                "Gemini compare_images: type=%s, model=%s, image1=%s, image2=%s",
+                comparison_type, getattr(self.config.gemini, 'model', ''), image_path_1, image_path_2
+            )
             response = self._call_with_retry([prompt, "Primera imagen:", image1, "Segunda imagen:", image2])
             
             result = {
                 'image_1': image_path_1,
                 'image_2': image_path_2,
                 'comparison_type': comparison_type,
-                'gemini_response': response.text,
+                'gemini_response': self._append_disclaimer(response.text),
                 'changes_detected': self._extract_changes(response.text),
-                'progression_assessment': self._extract_progression(response.text)
+                'progression_assessment': self._extract_progression(response.text),
+                'disclaimer_added': True,
             }
             
             return result
@@ -215,13 +242,18 @@ class GeminiAnalyzer:
             if not GENAI_AVAILABLE:
                 raise RuntimeError(GENAI_UNAVAILABLE_MSG)
 
+            self.logger.info(
+                "Gemini analyze_roi: model=%s, image=%s, roi=%s",
+                getattr(self.config.gemini, 'model', ''), image_path, roi_coordinates
+            )
             response = self._call_with_retry([prompt, roi])
             
             result = {
                 'image_path': image_path,
                 'roi_coordinates': roi_coordinates,
-                'gemini_response': response.text,
-                'roi_analysis': self._extract_roi_findings(response.text)
+                'gemini_response': self._append_disclaimer(response.text),
+                'roi_analysis': self._extract_roi_findings(response.text),
+                'disclaimer_added': True,
             }
             
             return result
@@ -271,9 +303,13 @@ class GeminiAnalyzer:
             if not GENAI_AVAILABLE:
                 raise RuntimeError("google-generativeai no disponible")
 
-            response = self._call_with_retry(prompt)
-            
-            return response.text
+            self.logger.info(
+                "Gemini generate_report: n_results=%d, model=%s, has_patient_info=%s",
+                len(analysis_results), getattr(self.config.gemini, 'model', ''), bool(patient_info)
+            )
+
+            response = self._call_with_retry([prompt])
+            return self._append_disclaimer(response.text)
             
         except Exception as e:
             self.logger.error(f"Error en generación de reporte: {e}")

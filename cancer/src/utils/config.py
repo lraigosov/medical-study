@@ -2,10 +2,13 @@
 Gestor centralizado de configuración para el proyecto cancer/.
 
 Características clave:
-- Carga config/config.json si existe.
-- Admite variables de entorno (prioridad sobre archivo), p. ej. GEMINI_API_KEY.
+- Carga exclusiva desde config/config.json (fuente de verdad única).
 - Validación con Pydantic y valores por defecto seguros.
 - Helper para obtener rutas absolutas y para configurar logging.
+
+Nota: Por lineamiento del proyecto, no se usan overrides por variables de entorno
+para llaves o configuraciones (incluida GEMINI_API_KEY). Todo debe residir en
+config/config.json y este archivo NO debe versionarse.
 """
 
 from __future__ import annotations
@@ -17,7 +20,6 @@ from pathlib import Path
 from typing import Any, Dict, Optional
 
 from pydantic import BaseModel, Field, ValidationError
-from dotenv import load_dotenv
 
 
 # Rutas base
@@ -94,6 +96,14 @@ class LoggingSettings(BaseModel):
     file: str = str(LOGS_DIR / "cancer_analysis.log")
 
 
+class LegalSettings(BaseModel):
+    # Descargo legal a incluir en todos los reportes/salidas generadas por IA.
+    report_disclaimer: str = (
+        "Esto es un análisis automatizado de apoyo clínico. No es un diagnóstico definitivo ni una "
+        "indicación terapéutica. Requiere revisión humana especializada."
+    )
+
+
 class AppConfig(BaseModel):
     gemini: GeminiSettings = GeminiSettings()
     tcia: TCIASettings = TCIASettings()
@@ -101,28 +111,10 @@ class AppConfig(BaseModel):
     model: ModelSettings = ModelSettings()
     radiomics: RadiomicsSettings = RadiomicsSettings()
     logging: LoggingSettings = LoggingSettings()
+    legal: LegalSettings = LegalSettings()
 
 
 _CONFIG_CACHE: Optional[AppConfig] = None
-
-
-def _apply_env_overrides(raw_cfg: Dict[str, Any]) -> Dict[str, Any]:
-    """Aplica overrides desde variables de entorno.
-
-    Prioriza GEMINI_API_KEY sobre gemini.api_key del archivo.
-    """
-    # Cargar .env si existe
-    load_dotenv(dotenv_path=BASE_DIR / ".env", override=False)
-
-    cfg = dict(raw_cfg)
-    # Navegar de forma segura
-    cfg.setdefault("gemini", {})
-
-    env_key = os.getenv("GEMINI_API_KEY", "").strip()
-    if env_key:
-        cfg["gemini"]["api_key"] = env_key
-
-    return cfg
 
 
 def load_config(path: Optional[Path] = None, force_reload: bool = False) -> AppConfig:
@@ -145,9 +137,6 @@ def load_config(path: Optional[Path] = None, force_reload: bool = False) -> AppC
             raise RuntimeError(f"Error leyendo configuración: {exc}")
     else:
         raw = {}
-
-    # Overrides desde entorno
-    raw = _apply_env_overrides(raw)
 
     try:
         _CONFIG_CACHE = AppConfig.model_validate(raw)
