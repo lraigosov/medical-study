@@ -1,0 +1,65 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+*.dll
+*.pkl
+
+# Virtual envs
+.venv/
+venv/
+env/
+ENV/
+.python-version
+
+# Packages/build
+build/
+dist/
+.eggs/
+*.egg-info/
+*.egg
+pip-wheel-metadata/
+
+# Notebooks
+.ipynb_checkpoints/
+
+# IDE/editor
+.vscode/
+*.code-workspace
+
+# OS / misc
+.DS_Store
+Thumbs.db
+
+# Environment
+.env
+.env.*
+*.env
+
+# Logs
+logs/
+*.log
+
+# Data & results (generated)
+data/raw/
+data/external/
+data/processed/images/
+data/processed/ingest_small/
+data/processed/ingest_small2/
+results/
+
+# Models / checkpoints
+**/*.h5
+**/*.keras
+**/*.ckpt
+
+# Cache / testing
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Project specific files - NEVER COMMIT THESE
+cancer/config/config.json
+cancer/plan_proyecto.md
