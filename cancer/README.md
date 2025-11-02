@@ -21,7 +21,13 @@ cancer/
 ├── config/                      # Configuraciones
 │   └── config.json             # Configuración principal
 ├── src/                        # Código fuente
-│   ├── utils/                  # Utilidades
+│   ├── domain/                 # Entidades del dominio (hexagonal)
+│   ├── ports/                  # Interfaces/contratos (hexagonal)
+│   ├── application/            # Servicios de aplicación (hexagonal)
+│   ├── infrastructure/         # Adaptadores e implementaciones (hexagonal)
+│   │   ├── adapters/           # Adaptadores de puertos
+│   │   └── container.py        # DI container
+│   ├── utils/                  # Utilidades reutilizables
 │   │   ├── tcia_client.py      # Cliente TCIA
 │   │   ├── gemini_analyzer.py  # Analizador Gemini
 │   │   └── dicom_processor.py  # Procesador DICOM
@@ -29,8 +35,9 @@ cancer/
 │   │   └── cancer_detection.py # Modelos de detección
 │   ├── analysis/               # Análisis avanzado
 │   │   └── radiomics_analysis.py # Análisis radiómico
+│   ├── cli/                    # Interfaz de línea de comandos
 │   └── dashboard/              # Dashboard web
-│       └── dashboard.py        # Aplicación Streamlit
+│       └── simple_dashboard.py # Aplicación Streamlit
 ├── notebooks/                  # Notebooks Jupyter
 │   ├── 01_exploratory_data_analysis.ipynb
 │   ├── 02_radiomics_analysis.ipynb
@@ -43,9 +50,15 @@ cancer/
 │   ├── raw/                    # Datos crudos
 │   ├── processed/              # Datos procesados
 │   └── external/               # Datos externos
+├── tests/                      # Tests unitarios
+│   ├── test_domain.py
+│   ├── test_analysis_service.py
+│   └── test_adapters.py
+├── ARCHITECTURE_HEXAGONAL.md   # Documentación de arquitectura hexagonal
 └── requirements.txt            # Dependencias
 ```
 
+**Nota**: El proyecto implementa **arquitectura hexagonal** (puertos y adaptadores). Ver `ARCHITECTURE_HEXAGONAL.md` para detalles sobre capas, flujos y extensibilidad.
 ### 🚀 Instalación y Configuración
 
 #### 1. Clonar el Repositorio
@@ -136,10 +149,9 @@ streamlit run .\src\dashboard\dashboard.py
 
 El dashboard incluye:
 - **🏠 Inicio**: Vista general del proyecto
-- **📊 Análisis de Datos**: Exploración de datos TCIA
+- **�️ Análisis**: Subir imagen, ejecutar análisis con Gemini (arquitectura hexagonal), ver resultados con disclaimer
+- **📊 Datos**: Exploración de datos TCIA
 - **🤖 Modelos de IA**: Comparación y evaluación de modelos
-- **🔬 Análisis Radiómico**: Características cuantitativas
-- **🧠 Gemini AI**: Análisis con inteligencia artificial
 - **⚙️ Configuración**: Configuración del sistema
 
 #### Notebooks Jupyter
@@ -253,6 +265,7 @@ La plataforma soporta múltiples colecciones de TCIA:
 - **Google Gemini API**: IA generativa
 - **Pandas/NumPy**: Análisis de datos
 - **Scikit-learn**: Machine learning tradicional
+- **Arquitectura Hexagonal**: Puertos y adaptadores para desacoplar lógica de negocio e infraestructura
 
 ### 📈 Métricas de Evaluación
 
@@ -301,12 +314,28 @@ Para soporte, preguntas o sugerencias:
 
 ### 🎯 Roadmap
 
+#### ✅ Completado (v1.0)
+- [x] Arquitectura hexagonal (puertos/adaptadores/servicios)
+- [x] Integración con TCIA (TCIAClient)
+- [x] Análisis con Gemini AI
+- [x] Dashboard interactivo con Streamlit (página Análisis con IA)
+- [x] Configuración centralizada (config.json)
+- [x] Tests unitarios (dominio, servicios, adaptadores)
+- [x] CLI para análisis de imágenes
+
+#### 🚧 En progreso
+- [ ] Adaptador y puerto para PHI anonymization
+- [ ] Servicio de auditoría/trazabilidad
+- [ ] Servicio de ingesta y curación de datos (data-ingestor, data-curator)
+- [ ] Feature store multimodal
+
+#### 📅 Futuras versiones
 - [ ] **v1.1**: Integración con PACS
-- [ ] **v1.2**: Modelos de segmentación
-- [ ] **v1.3**: Análisis longitudinal
-- [ ] **v1.4**: API REST
+- [ ] **v1.2**: Modelos de segmentación automática
+- [ ] **v1.3**: Análisis longitudinal y comparación temporal
+- [ ] **v1.4**: API REST para inferencia
 - [ ] **v1.5**: Integración con HL7 FHIR
-- [ ] **v2.0**: Despliegue en la nube
+- [ ] **v2.0**: Despliegue en la nube (AWS/Azure/GCP)
 
 ### 📚 Referencias
 
