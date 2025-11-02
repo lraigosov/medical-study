@@ -18,8 +18,18 @@ warnings.filterwarnings('ignore')
 
 # Configurar paths
 BASE_DIR = Path(__file__).parent.parent.parent
+# Asegurar importación de módulos internos (src/*)
+SRC_DIR = BASE_DIR / "src"
+if str(SRC_DIR) not in sys.path:
+    sys.path.insert(0, str(SRC_DIR))
 CONFIG_PATH = BASE_DIR / "config" / "config.json"
 RESULTS_DIR = BASE_DIR / "results"
+
+# Importes internos (DI container)
+try:
+    from infrastructure.container import build_container  # type: ignore
+except Exception:
+    build_container = None  # Fallback: se mostrará advertencia en UI
 
 # Configuración de página
 st.set_page_config(
@@ -112,7 +122,7 @@ st.sidebar.markdown(f"{gemini_icon} Gemini AI")
 # Navegación
 page = st.sidebar.selectbox(
     "Seleccionar Página:",
-    ["🏠 Inicio", "📊 Datos", "🤖 Modelos", "⚙️ Config"]
+    ["🏠 Inicio", "�️ Análisis", "�📊 Datos", "🤖 Modelos", "⚙️ Config"]
 )
 
 # Página: Inicio
@@ -444,4 +454,108 @@ st.markdown(f"""
     <p>🔬 Cancer Analytics Platform v1.0.0</p>
     <p>Última actualización: {datetime.now().strftime("%Y-%m-%d %H:%M:%S")}</p>
 </div>
-""", unsafe_allow_html=True)
+""", unsafe_allow_html=True)# Código a agregar al final de simple_dashboard.py
+# (después del footer)
+
+# Página: Análisis con IA (contenedor hexagonal)
+if page == "🖼️ Análisis":
+    st.header("🖼️ Análisis con IA (Gemini)")
+
+    if build_container is None:
+        st.error("No se pudo importar el contenedor de dependencias. Verifica la estructura del proyecto.")
+        st.stop()
+
+    # Bloque de configuración visible
+    with st.expander("Configuración y estado"):
+        st.write("Gemini configurado:", gemini_configured)
+        st.write("Archivo de configuración:", str(CONFIG_PATH))
+
+    # Uploader de archivos
+    uploaded_file = st.file_uploader(
+        "Sube una imagen médica (PNG/JPG)", type=["png", "jpg", "jpeg"], accept_multiple_files=False
+    )
+
+    analysis_type = st.selectbox(
+        "Tipo de análisis",
+        ["general", "cancer_detection", "radiomics"],
+        index=0
+    )
+
+    # Directorio temporal para cargas
+    uploads_dir = BASE_DIR / "data" / "uploads"
+    uploads_dir.mkdir(parents=True, exist_ok=True)
+
+    run_btn = st.button("🚀 Analizar")
+
+    if run_btn:
+        if not uploaded_file:
+            st.warning("Sube una imagen primero.")
+            st.stop()
+
+        if not gemini_configured:
+            st.error("Gemini no está configurado. Ve a '⚙️ Config' y define la API Key.")
+            st.stop()
+
+        # Guardar archivo temporalmente
+        temp_path = uploads_dir / f"{datetime.now().strftime('%Y%m%d_%H%M%S')}_{uploaded_file.name}"
+        try:
+            with open(temp_path, "wb") as f:
+                f.write(uploaded_file.getbuffer())
+        except Exception as e:
+            st.error(f"No se pudo guardar el archivo: {e}")
+            st.stop()
+
+        # Ejecutar análisis
+        with st.spinner("Analizando imagen con IA…"):
+            try:
+                container = build_container(str(CONFIG_PATH))
+                svc = container.analysis_service
+                result = svc.analyze_image(str(temp_path), analysis_type)
+            except Exception as e:
+                st.error(f"Error durante el análisis: {e}")
+                st.stop()
+
+        # Mostrar resultados
+        left, right = st.columns([1, 1])
+        with left:
+            st.subheader("Imagen")
+            try:
+                st.image(str(temp_path), caption=uploaded_file.name, use_container_width=True)
+            except Exception:
+                st.info("Vista previa no disponible para este archivo.")
+
+        with right:
+            st.subheader("Resultado")
+            if isinstance(result, dict) and "error" in result:
+                st.error(result.get("error"))
+            else:
+                # Texto principal
+                response_text = (
+                    result.get("gemini_response")
+                    or result.get("response_text")
+                    or result.get("text")
+                    or "(Sin respuesta de IA)"
+                )
+                st.markdown(response_text)
+
+                # Hallazgos estructurados
+                findings = result.get("findings") or []
+                recommendations = result.get("recommendations") or []
+                confidence = result.get("confidence_indicators") or []
+
+                if findings:
+                    st.markdown("**Hallazgos:**")
+                    for it in findings:
+                        st.write(f"• {it}")
+                if recommendations:
+                    st.markdown("**Recomendaciones:**")
+                    for it in recommendations:
+                        st.write(f"• {it}")
+                if confidence:
+                    st.markdown("**Indicadores de confianza:**")
+                    st.write(", ".join(confidence))
+
+                # Descargo legal desde configuración
+                disclaimer = (config.get("legal", {}) or {}).get("report_disclaimer")
+                if disclaimer:
+                    st.info(disclaimer)
