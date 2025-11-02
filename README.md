@@ -11,14 +11,16 @@ Este repositorio contiene proyectos de investigación en el campo de la medicina
 ```
 medical-study/
 ├── cancer/                     # Plataforma de Análisis de Cáncer
+│   ├── docs/                   # Documentación técnica
 │   ├── src/                    # Código fuente
 │   ├── data/                   # Datasets médicos
 │   ├── notebooks/              # Análisis exploratorio
-│   └── README.md              # Documentación completa
+│   ├── tests/                  # Tests unitarios
+│   └── README.md              # Punto de entrada del proyecto
 │
 ├── [futuros-proyectos]/       # Próximos proyectos médicos
 │
-└── README.md                  # Este archivo
+└── README.md                  # Este archivo (índice general)
 ```
 
 ---
@@ -30,11 +32,13 @@ medical-study/
 **Estado**: ✅ Activo y en desarrollo
 
 Plataforma integral de análisis de cáncer que integra:
+- Arquitectura hexagonal (puertos y adaptadores)
 - Acceso a The Cancer Imaging Archive (TCIA)
 - Análisis con Google Gemini AI
 - Modelos de Deep Learning (CNN, Vision Transformers)
 - Análisis radiómico con PyRadiomics
 - Dashboard interactivo con Streamlit
+- Tests unitarios completos
 
 **Casos de uso**:
 - Detección temprana de diferentes tipos de cáncer
@@ -42,7 +46,11 @@ Plataforma integral de análisis de cáncer que integra:
 - Clasificación de imágenes médicas
 - Análisis cualitativo con IA generativa
 
-**[📖 Ver documentación completa →](./cancer/README.md)**
+**Documentación**:
+- 📖 [README del proyecto](./cancer/README.md) - Guía de inicio y uso
+- 🏗️ [Arquitectura Hexagonal](./cancer/docs/ARCHITECTURE_HEXAGONAL.md) - Diseño técnico
+- 📋 [Plan del Proyecto](./cancer/docs/plan_proyecto.md) - Requisitos y roadmap
+- 🚀 [Potenciar Proyecto](./cancer/docs/potenciar_proyecto.md) - Instrucciones maestras para IA
 
 ---
 
@@ -346,4 +354,4 @@ Los datasets utilizados pueden tener sus propias licencias. Por favor, revisa y 
 
 ---
 
-**Última actualización**: Noviembre 2024
+**Última actualización**: Noviembre 2025

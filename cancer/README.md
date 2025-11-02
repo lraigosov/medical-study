@@ -16,10 +16,16 @@ Una completa plataforma de análisis de datos de cáncer que integra técnicas a
 
 ### 🏗️ Arquitectura del Proyecto
 
+El proyecto implementa **arquitectura hexagonal** (puertos y adaptadores) para separar la lógica de negocio de las implementaciones técnicas. Ver documentación detallada en [`docs/ARCHITECTURE_HEXAGONAL.md`](./docs/ARCHITECTURE_HEXAGONAL.md).
+
 ```
 cancer/
 ├── config/                      # Configuraciones
 │   └── config.json             # Configuración principal
+├── docs/                        # Documentación técnica
+│   ├── ARCHITECTURE_HEXAGONAL.md  # Guía de arquitectura
+│   ├── plan_proyecto.md           # Plan y requisitos
+│   └── potenciar_proyecto.md      # Instrucciones maestras
 ├── src/                        # Código fuente
 │   ├── domain/                 # Entidades del dominio (hexagonal)
 │   ├── ports/                  # Interfaces/contratos (hexagonal)
@@ -54,11 +60,14 @@ cancer/
 │   ├── test_domain.py
 │   ├── test_analysis_service.py
 │   └── test_adapters.py
-├── ARCHITECTURE_HEXAGONAL.md   # Documentación de arquitectura hexagonal
 └── requirements.txt            # Dependencias
 ```
 
-**Nota**: El proyecto implementa **arquitectura hexagonal** (puertos y adaptadores). Ver `ARCHITECTURE_HEXAGONAL.md` para detalles sobre capas, flujos y extensibilidad.
+**📚 Documentación adicional**:
+- 🏗️ [Arquitectura Hexagonal](./docs/ARCHITECTURE_HEXAGONAL.md) - Diseño, capas, flujos y extensibilidad
+- 📋 [Plan del Proyecto](./docs/plan_proyecto.md) - Requisitos y alcance
+- 🚀 [Potenciar Proyecto](./docs/potenciar_proyecto.md) - Instrucciones maestras para construcción con IA
+
 ### 🚀 Instalación y Configuración
 
 #### 1. Clonar el Repositorio
