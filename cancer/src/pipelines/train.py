@@ -13,7 +13,10 @@ from pathlib import Path
 
 import numpy as np
 
-from utils.config import load_config, configure_logging
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+from utils.config_loader import load_config, configure_logging
 from models.cancer_detection import CancerDetectionModel
 
 

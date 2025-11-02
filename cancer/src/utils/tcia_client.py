@@ -11,7 +11,7 @@ from typing import List, Dict, Optional, Any, Callable
 from pathlib import Path
 import pandas as pd
 
-from .config import load_config, configure_logging, project_path
+from .config_loader import load_config, configure_logging, project_path
 
 class TCIAClient:
     """Cliente para interactuar con la API REST de TCIA."""
@@ -24,14 +24,16 @@ class TCIAClient:
             config_path: Ruta al archivo de configuración JSON
         """
         cfg = load_config(Path(config_path) if config_path else None)
-        self.base_url = cfg.tcia.base_url
-        self.collections_url = cfg.tcia.collections_url
+        tcia_cfg = cfg.get("tcia", {})
+        self.base_url = tcia_cfg.get("base_url", "https://services.cancerimagingarchive.net/nbia-api/services/v1")
+        self.collections_url = tcia_cfg.get("collections_url", "https://www.cancerimagingarchive.net/wp-json/wp/v2/collections")
         # Resolver ruta de descarga a absoluta dentro del proyecto
-        self.download_path = project_path(cfg.tcia.download_path).resolve()
+        download_path_str = tcia_cfg.get("download_path", "./data/raw")
+        self.download_path = project_path(download_path_str).resolve()
         self.session = requests.Session()
 
         # Configurar logging
-        self.logger = configure_logging()
+        self.logger = configure_logging(cfg)
         self.logger = logging.getLogger(__name__)
 
     def _request_with_retry(
@@ -40,31 +42,38 @@ class TCIAClient:
         url: str,
         *,
         params: Optional[Dict[str, Any]] = None,
-        retries: int = 3,
-        backoff: float = 0.75,
-        timeout: float = 30.0,
+        retries: Optional[int] = None,
+        backoff: Optional[float] = None,
+        timeout: Optional[float] = None,
     ) -> Optional[requests.Response]:
         """Ejecuta una petición HTTP con reintentos exponenciales y timeout.
 
         - Reintenta en errores de red y códigos 5xx.
         - Aplica backoff exponencial con jitter pequeño.
         """
+        # Leer valores desde config
+        cfg = load_config()
+        tcia_cfg = cfg.get("tcia", {})
+        _retries = retries if retries is not None else tcia_cfg.get("retries", 3)
+        _backoff = backoff if backoff is not None else tcia_cfg.get("backoff", 0.75)
+        _timeout = timeout if timeout is not None else tcia_cfg.get("timeout", 30.0)
+        
         attempt = 0
         last_exc: Optional[Exception] = None
-        while attempt <= retries:
+        while attempt <= _retries:
             try:
-                resp = method(url, params=params, timeout=timeout, stream=False)
+                resp = method(url, params=params, timeout=_timeout)
                 # Reintentar en 5xx
                 if 500 <= resp.status_code < 600:
                     raise requests.HTTPError(f"{resp.status_code} server error", response=resp)
                 return resp
             except (requests.Timeout, requests.ConnectionError, requests.HTTPError) as e:
                 last_exc = e
-                if attempt == retries:
+                if attempt == _retries:
                     break
-                sleep_s = backoff * (2 ** attempt) + (0.05 * (attempt + 1))
+                sleep_s = _backoff * (2 ** attempt) + (0.05 * (attempt + 1))
                 self.logger.warning(
-                    f"HTTP fallo ({e}); reintentando en {sleep_s:.2f}s (intento {attempt+1}/{retries})"
+                    f"HTTP fallo ({e}); reintentando en {sleep_s:.2f}s (intento {attempt+1}/{_retries})"
                 )
                 time.sleep(sleep_s)
                 attempt += 1
@@ -269,13 +278,18 @@ class TCIAClient:
 
         target_dir.mkdir(parents=True, exist_ok=True)
         
+        # Leer timeout desde config
+        cfg = load_config()
+        tcia_cfg = cfg.get("tcia", {})
+        download_timeout = tcia_cfg.get("download_timeout", 120.0)
+        
         try:
             endpoint = f"{self.base_url}/getImage"
             response = self._request_with_retry(
                 self.session.get,
                 endpoint,
                 params={"SeriesInstanceUID": series_uid},
-                timeout=120.0,
+                timeout=download_timeout,
             )
             if response is None:
                 return ""

@@ -11,7 +11,10 @@ import argparse
 import json
 from pathlib import Path
 
-from utils.config import load_config, configure_logging
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+from utils.config_loader import load_config, configure_logging
 from utils.tcia_client import TCIAClient
 
 

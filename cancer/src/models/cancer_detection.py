@@ -362,6 +362,10 @@ class CancerDetectionModel:
                 return {"error": "No se pudo crear el modelo"}
             
             # Callbacks
+            # Obtener patience desde config fine_tuning si existe
+            fine_tuning_cfg = self.config.get('model', {}).get('fine_tuning', {})
+            reduce_lr_patience = fine_tuning_cfg.get('checkpoint_patience', 5)
+            
             callbacks_list = [
                 callbacks.EarlyStopping(
                     monitor='val_loss',
@@ -371,7 +375,7 @@ class CancerDetectionModel:
                 callbacks.ReduceLROnPlateau(
                     monitor='val_loss',
                     factor=0.5,
-                    patience=5,
+                    patience=reduce_lr_patience,
                     min_lr=1e-7
                 ),
                 callbacks.ModelCheckpoint(
@@ -382,10 +386,12 @@ class CancerDetectionModel:
                 )
             ]
             
-            # Entrenar modelo
+            # Entrenar modelo - usar batch_size desde config
+            train_batch_size = self.model_config.get('batch_size', 32)
+            
             self.history = self.model.fit(
                 X_train, y_train,
-                batch_size=32,
+                batch_size=train_batch_size,
                 epochs=self.epochs,
                 validation_data=(x_val, y_val),
                 callbacks=callbacks_list,

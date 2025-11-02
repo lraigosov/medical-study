@@ -1,6 +1,7 @@
 """
 Modelo multimodal de fusión (imagen + radiómico opcional) para detección de cáncer.
 Incluye entrenamiento con K-Fold CV, data augmentation y guardado de artefactos.
+Configuración centralizada en config.json.
 """
 
 from __future__ import annotations
@@ -23,6 +24,19 @@ except Exception:  # noqa: BLE001
     TF_AVAILABLE = False
 
 
+def _load_fusion_config() -> Dict[str, Any]:
+    """Carga configuración de fusion desde config.json."""
+    config_path = Path(__file__).parent.parent.parent / "config" / "config.json"
+    if config_path.exists():
+        try:
+            with open(config_path, 'r') as f:
+                cfg = json.load(f)
+                return cfg.get('model', {}).get('fusion', {})
+        except Exception:  # noqa: BLE001
+            pass
+    return {}
+
+
 @dataclass
 class FusionConfig:
     input_shape: Tuple[int, int, int] = (224, 224, 3)
@@ -34,13 +48,38 @@ class FusionConfig:
     batch_size: int = 32
     patience: int = 7
     k_folds: int = 5
+    reduce_lr_patience: int = 3
+    reduce_lr_factor: float = 0.5
+    min_lr: float = 1e-6
     results_dir: Path = Path(__file__).parent.parent.parent / "results"
+    
+    @classmethod
+    def from_config_file(cls) -> "FusionConfig":
+        """Crea FusionConfig desde config.json."""
+        cfg_dict = _load_fusion_config()
+        if not cfg_dict:
+            return cls()
+        
+        return cls(
+            input_shape=tuple(cfg_dict.get('input_shape', [224, 224, 3])),
+            num_classes=cfg_dict.get('num_classes', 2),
+            radiomics_dim=cfg_dict.get('radiomics_dim', 0),
+            base_model=cfg_dict.get('base_model', 'EfficientNetB0'),
+            learning_rate=cfg_dict.get('learning_rate', 1e-3),
+            epochs=cfg_dict.get('epochs', 15),
+            batch_size=cfg_dict.get('batch_size', 32),
+            patience=cfg_dict.get('patience', 7),
+            k_folds=cfg_dict.get('k_folds', 5),
+            reduce_lr_patience=cfg_dict.get('reduce_lr_patience', 3),
+            reduce_lr_factor=cfg_dict.get('reduce_lr_factor', 0.5),
+            min_lr=cfg_dict.get('min_lr', 1e-6)
+        )
 
 
 class FusionCancerModel:
     def __init__(self, cfg: Optional[FusionConfig] = None) -> None:
         if cfg is None:
-            cfg = FusionConfig()
+            cfg = FusionConfig.from_config_file()
         self.cfg = cfg
         self.model: Optional[keras.Model] = None
         timestamp = time.strftime("%Y%m%d_%H%M%S")
@@ -194,8 +233,13 @@ class FusionCancerModel:
         # Callbacks y entrenamiento
         ckpt_path = self.run_dir / f"fold{fold}_best.h5"
         cbs = [
-            callbacks.EarlyStopping(monitor="val_accuracy", patience=self.cfg.patience, restore_best_weights=True),
-            callbacks.ReduceLROnPlateau(monitor="val_loss", factor=0.5, patience=3, min_lr=1e-6),
+            callbacks.EarlyStopping(monitor="val_loss", patience=self.cfg.patience, restore_best_weights=True),
+            callbacks.ReduceLROnPlateau(
+                monitor="val_loss", 
+                factor=self.cfg.reduce_lr_factor, 
+                patience=self.cfg.reduce_lr_patience, 
+                min_lr=self.cfg.min_lr
+            ),
             callbacks.ModelCheckpoint(filepath=str(ckpt_path), monitor="val_accuracy", save_best_only=True),
         ]
         hist = model.fit(train_ds, validation_data=val_ds, epochs=self.cfg.epochs, verbose=1, callbacks=cbs)

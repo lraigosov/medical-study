@@ -27,7 +27,7 @@ SRC_DIR = BASE_DIR / "src"
 if str(SRC_DIR) not in sys.path:
     sys.path.insert(0, str(SRC_DIR))
 
-from utils.config import configure_logging  # type: ignore
+from utils.config_loader import configure_logging  # type: ignore
 from utils.tcia_client import TCIAClient  # type: ignore
 from utils.dicom_processor import DICOMProcessor  # type: ignore
 from pipelines.extract_radiomics import compute_features  # type: ignore

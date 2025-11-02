@@ -45,7 +45,7 @@ except ImportError:
     NIBABEL_AVAILABLE = False
     warnings.warn("nibabel no está instalado. Instale con: pip install nibabel")
 
-from .config import load_config, configure_logging
+from .config_loader import load_config, configure_logging
 
 
 class DICOMProcessor:
@@ -61,12 +61,14 @@ class DICOMProcessor:
         cfg = load_config(Path(config_path) if config_path else None)
 
         # Configurar logging
-        self.logger = configure_logging()
+        self.logger = configure_logging(cfg)
         self.logger = logging.getLogger(__name__)
         
         # Parámetros de configuración
-        self.image_size = tuple(cfg.data.image_size)
-        self.supported_formats = cfg.tcia.supported_formats
+        data_cfg = cfg.get("data", {})
+        tcia_cfg = cfg.get("tcia", {})
+        self.image_size = tuple(data_cfg.get("image_size", [224, 224]))
+        self.supported_formats = tcia_cfg.get("supported_formats", ["DICOM", "NIfTI", "ANALYZE"])
         
         self.logger.info("Procesador DICOM inicializado")
     

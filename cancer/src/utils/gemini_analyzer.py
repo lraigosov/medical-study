@@ -17,7 +17,40 @@ try:
 except Exception:  # noqa: BLE001
     GENAI_AVAILABLE = False
 
-from .config import load_config, configure_logging
+# Carga directa de configuración desde config/config.json (fuente única)
+BASE_DIR = Path(__file__).resolve().parents[2]
+CONFIG_PATH = BASE_DIR / "config" / "config.json"
+
+def _load_config(path: Optional[Path] = None) -> Dict[str, Any]:
+    cfg_path = Path(path) if path else CONFIG_PATH
+    if cfg_path.exists():
+        try:
+            return json.loads(cfg_path.read_text(encoding="utf-8"))
+        except Exception as exc:  # noqa: BLE001
+            raise RuntimeError(f"Error leyendo configuración: {exc}")
+    return {}
+
+def _configure_logging(cfg: Optional[Dict[str, Any]] = None) -> logging.Logger:
+    logger = logging.getLogger("cancer")
+    if logger.handlers:
+        return logger
+    logging_cfg = (cfg or {}).get("logging", {})
+    level_name = str(logging_cfg.get("level", "INFO")).upper()
+    level = getattr(logging, level_name, logging.INFO)
+    logger.setLevel(level)
+    fmt = logging.Formatter(logging_cfg.get("format", "%(asctime)s - %(name)s - %(levelname)s - %(message)s"))
+    sh = logging.StreamHandler()
+    sh.setFormatter(fmt)
+    logger.addHandler(sh)
+    try:
+        logs_dir = BASE_DIR / "logs"
+        logs_dir.mkdir(parents=True, exist_ok=True)
+        fh = logging.FileHandler(logging_cfg.get("file", str(logs_dir / "cancer_analysis.log")), encoding="utf-8")
+        fh.setFormatter(fmt)
+        logger.addHandler(fh)
+    except Exception:  # noqa: BLE001
+        pass
+    return logger
 
 # Mensajes constantes
 GENAI_UNAVAILABLE_MSG = "google-generativeai no disponible"
@@ -32,30 +65,31 @@ class GeminiAnalyzer:
         Args:
             config_path: Ruta al archivo de configuración JSON
         """
-        # Cargar configuración
-        self.config = load_config(Path(config_path) if config_path else None)
-
-        # Configurar logging y logger de módulo
-        configure_logging()
+        # Cargar configuración y configurar logging
+        self.config = _load_config(Path(config_path) if config_path else None)
+        _configure_logging(self.config)
         self.logger = logging.getLogger(__name__)
 
         # Descargo legal centralizado
-        self._disclaimer_text = str(self.config.legal.report_disclaimer)
+        legal = self.config.get("legal", {})
+        self._disclaimer_text = str(legal.get("report_disclaimer", ""))
 
         # Validar disponibilidad de Gemini
         if not GENAI_AVAILABLE:
             self.logger.warning("google-generativeai no está instalado. Instale con: pip install google-generativeai")
         else:
-            api_key = self.config.gemini.api_key
+            api_key = self.config.get("gemini", {}).get("api_key", "")
             if not api_key:
                 raise RuntimeError("GEMINI_API_KEY no configurada. Defínala en el entorno o en config/config.json")
             genai.configure(api_key=api_key)  # type: ignore[attr-defined]
-            self.model: Any = genai.GenerativeModel(self.config.gemini.model)  # type: ignore[attr-defined]
+            model_name = self.config.get("gemini", {}).get("model", "gemini-1.5-pro")
+            self.model: Any = genai.GenerativeModel(model_name)  # type: ignore[attr-defined]
         
         # Parámetros de generación
+        g = self.config.get("gemini", {})
         self.generation_config = {
-            'temperature': self.config.gemini.temperature,
-            'max_output_tokens': self.config.gemini.max_tokens,
+            'temperature': g.get('temperature', 0.1),
+            'max_output_tokens': g.get('max_tokens', 4096),
         }
 
     def _append_disclaimer(self, text: str) -> str:
@@ -72,20 +106,26 @@ class GeminiAnalyzer:
         sep = "\n\n" if not text.endswith("\n") else "\n"
         return f"{text}{sep}{disc}"
 
-    def _call_with_retry(self, parts, *, retries: int = 2, backoff: float = 0.75):
+    def _call_with_retry(self, parts, *, retries: Optional[int] = None, backoff: Optional[float] = None):
         """Envuelve generate_content con reintentos simples (rate limits/temporales)."""
         if not GENAI_AVAILABLE:
             raise RuntimeError(GENAI_UNAVAILABLE_MSG)
+        
+        # Usar retries y backoff desde config
+        g = self.config.get("gemini", {})
+        _retries = retries if retries is not None else g.get("retries", 2)
+        _backoff = backoff if backoff is not None else g.get("backoff", 0.75)
+        
         last_exc: Exception | None = None
-        for attempt in range(retries + 1):
+        for attempt in range(_retries + 1):
             try:
                 return self.model.generate_content(parts, generation_config=self.generation_config)  # type: ignore[arg-type]
             except Exception as e:  # noqa: BLE001
                 last_exc = e
-                if attempt == retries:
+                if attempt == _retries:
                     break
                 import time
-                sleep_s = backoff * (2 ** attempt)
+                sleep_s = _backoff * (2 ** attempt)
                 self.logger.warning(f"Gemini fallo transitorio ({e}); reintentando en {sleep_s:.2f}s…")
                 time.sleep(sleep_s)
         if last_exc is not None:
@@ -116,7 +156,7 @@ class GeminiAnalyzer:
 
             self.logger.info(
                 "Gemini analyze_medical_image: type=%s, model=%s, image=%s",
-                analysis_type, getattr(self.config.gemini, 'model', ''), image_path
+                analysis_type, self.config.get('gemini', {}).get('model', ''), image_path
             )
             response = self._call_with_retry([prompt, image])
             
@@ -187,7 +227,7 @@ class GeminiAnalyzer:
 
             self.logger.info(
                 "Gemini compare_images: type=%s, model=%s, image1=%s, image2=%s",
-                comparison_type, getattr(self.config.gemini, 'model', ''), image_path_1, image_path_2
+                comparison_type, self.config.get('gemini', {}).get('model', ''), image_path_1, image_path_2
             )
             response = self._call_with_retry([prompt, "Primera imagen:", image1, "Segunda imagen:", image2])
             
@@ -244,7 +284,7 @@ class GeminiAnalyzer:
 
             self.logger.info(
                 "Gemini analyze_roi: model=%s, image=%s, roi=%s",
-                getattr(self.config.gemini, 'model', ''), image_path, roi_coordinates
+                self.config.get('gemini', {}).get('model', ''), image_path, roi_coordinates
             )
             response = self._call_with_retry([prompt, roi])
             
@@ -305,7 +345,7 @@ class GeminiAnalyzer:
 
             self.logger.info(
                 "Gemini generate_report: n_results=%d, model=%s, has_patient_info=%s",
-                len(analysis_results), getattr(self.config.gemini, 'model', ''), bool(patient_info)
+                len(analysis_results), self.config.get('gemini', {}).get('model', ''), bool(patient_info)
             )
 
             response = self._call_with_retry([prompt])

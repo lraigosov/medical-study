@@ -20,7 +20,10 @@ SRC_DIR = BASE_DIR / "src"
 if str(SRC_DIR) not in sys.path:
     sys.path.insert(0, str(SRC_DIR))
 
-from utils.config import configure_logging  # type: ignore
+from tensorflow.keras.utils import to_categorical
+from sklearn.model_selection import KFold
+
+from utils.config_loader import configure_logging  # type: ignore
 from models.fusion_model import FusionConfig, FusionCancerModel  # type: ignore
 
 
