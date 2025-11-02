@@ -54,43 +54,45 @@ Plataforma integral de análisis de cáncer que integra:
 
 ---
 
-## 🎯 Proyectos Futuros
+## 💭 Ideas para Futuros Proyectos
+
+> **Nota importante**: Los siguientes proyectos son **conceptos en fase exploratoria**. Su desarrollo dependerá de la disponibilidad de tiempo, recursos y prioridades del autor.
 
 ### 2. 🫀 Cardiovascular Disease Analysis
-**Estado**: 📋 Planificado
+**Estado**: � Idea conceptual
 
-Análisis de enfermedades cardiovasculares mediante:
+Posible análisis de enfermedades cardiovasculares:
 - Procesamiento de ECG con Deep Learning
 - Análisis de imágenes ecocardiográficas
 - Predicción de riesgo cardiovascular
-- Monitoreo de señales vitales
 
 ### 3. 🧠 Neurological Disorders Detection
-**Estado**: 📋 Planificado
+**Estado**: � Idea conceptual
 
-Detección de trastornos neurológicos:
+Potencial detección de trastornos neurológicos:
 - Análisis de resonancias magnéticas cerebrales
 - Detección temprana de Alzheimer y Parkinson
 - Segmentación de lesiones cerebrales
-- Análisis de EEG
 
 ### 4. 🦴 Orthopedic Analysis
-**Estado**: 📋 Planificado
+**Estado**: � Idea conceptual
 
-Análisis ortopédico y traumatológico:
+Posible análisis ortopédico:
 - Detección de fracturas en rayos X
 - Clasificación de lesiones musculoesqueléticas
 - Análisis de densidad ósea
-- Evaluación de artritis
 
 ### 5. 🩺 Clinical Decision Support System
-**Estado**: 📋 Planificado
+**Estado**: � Idea conceptual
 
-Sistema de apoyo a decisiones clínicas:
+Sistema de apoyo a decisiones clínicas (largo plazo):
 - Integración de datos multimodales
 - Predicción de diagnósticos diferenciales
-- Recomendaciones de tratamiento basadas en evidencia
-- Análisis de historiales clínicos
+- Recomendaciones basadas en evidencia
+
+---
+
+**⚠️ Aclaración sobre proyectos futuros**: Estos representan áreas de interés, pero su implementación requiere planificación cuidadosa y no tienen fechas estimadas. El foco actual es consolidar y mejorar el Cancer Analytics Platform.
 
 ---
 
@@ -226,9 +228,37 @@ pip install -r requirements.txt
 
 ## 📄 Licencia
 
-Este repositorio está bajo la **Licencia MIT**, a menos que se especifique lo contrario en proyectos individuales.
+© 2025 **Luis Rai (lraigosov)** - Todos los derechos reservados.
 
-Ver [LICENSE](./LICENSE) para más detalles.
+Este repositorio está bajo la **Licencia MIT con Requisito de Atribución**.
+
+**CONDICIONES IMPORTANTES:**
+- ✅ Uso libre para investigación científica, académica y comercial
+- ✅ Modificaciones y mejoras son bienvenidas y fomentadas
+- ⚠️ **OBLIGATORIO**: Mantener créditos al autor original (Luis Rai / lraigosov) en cualquier uso o derivado
+- ⚠️ **OBLIGATORIO**: Incluir enlace al repositorio original: https://github.com/lraigosov/medical-study
+- ⚠️ **OBLIGATORIO**: Citar como: "Basado en Cancer Analytics Platform por Luis Rai (lraigosov)"
+
+Ver [LICENSE](./LICENSE) para detalles completos.
+
+### 📖 Cómo Citar Este Trabajo
+
+**Para uso académico o investigación:**
+```
+Cancer Analytics Platform
+Autor: Luis Rai (lraigosov)
+Año: 2025
+Repositorio: https://github.com/lraigosov/medical-study
+Licencia: MIT con Atribución Obligatoria
+```
+
+**Para uso en aplicaciones o derivados:**
+Incluir en la documentación, créditos o "Acerca de":
+```
+Basado en Cancer Analytics Platform
+Desarrollado por: Luis Rai (lraigosov)
+https://github.com/lraigosov/medical-study
+```
 
 ### Licencias de Datasets
 
@@ -246,8 +276,12 @@ Los datasets utilizados pueden tener sus propias licencias. Por favor, revisa y 
 
 ### Mantenedor Principal
 
+**Autor y Creador:** Luis Rai (LuisRai)
 - **GitHub**: [@lraigosov](https://github.com/lraigosov)
 - **Repositorio**: [medical-study](https://github.com/lraigosov/medical-study)
+- **Proyecto**: Cancer Analytics Platform
+
+© 2025 Luis Rai - Todos los derechos reservados. El uso de este código requiere atribución al autor original.
 
 ---
 
@@ -276,37 +310,77 @@ Los datasets utilizados pueden tener sus propias licencias. Por favor, revisa y 
 
 ---
 
-## 🗺️ Roadmap General
+## � Historia y Evolución del Proyecto
 
-### Q4 2024
-- [x] Implementación base de Cancer Analytics Platform
-- [x] Integración con TCIA
-- [x] Dashboard interactivo inicial
+### 🕐 Línea de Tiempo
 
-### Q1 2025
-- [ ] Modelos de segmentación para cáncer
-- [ ] Inicio del proyecto Cardiovascular
-- [ ] API REST para Cancer Platform
+**Agosto 2023** - Inicio del proyecto
+- Fase de investigación y conceptualización inicial
+- Estudio de arquitecturas y tecnologías disponibles
+- Primeros experimentos con modelos de Deep Learning
 
-### Q2 2025
-- [ ] Análisis longitudinal de cáncer
-- [ ] Proyecto de enfermedades neurológicas
-- [ ] Integración con estándares DICOM/HL7
+**2023-2024** - Desarrollo intermitente
+- Trabajo en tiempos limitados debido a otros proyectos profesionales
+- Múltiples pausas por compromisos laborales y personales
+- Evolución orgánica de la arquitectura del sistema
+- Implementación de modelos básicos de clasificación
 
-### Q3 2025
-- [ ] Sistema de apoyo a decisiones clínicas
-- [ ] Despliegue en la nube
-- [ ] Publicación de papers
+**Finales 2024** - Retoma activa
+- Reorganización del código con arquitectura hexagonal profesional
+- Integración con The Cancer Imaging Archive (TCIA)
+- Consolidación de funcionalidades core
+- Mejora de la estructura del proyecto
+
+**Mediados 2025** - 🚀 **Punto de Inflexión**
+- **Integración con IA Generativa (Google Gemini AI)**
+- Cambio de paradigma: enfoque mucho más realista y práctico
+- Salto cualitativo en capacidades de análisis
+- Nueva visión del potencial del proyecto
+
+**2025 (Actual)** - Estado consolidado
+- ✅ Plataforma Cancer Analytics plenamente funcional
+- ✅ Dashboard interactivo con UI/UX optimizada
+- ✅ Integración dual: Deep Learning + IA Generativa
+- ✅ 6+ datasets de TCIA configurados y operativos
+- ✅ Suite de 9 tests unitarios pasando
+- ✅ Documentación técnica completa y profesional
+- ✅ Arquitectura hexagonal robusta y escalable
+
+### 🔮 Posible Evolución Futura
+
+> **Nota**: Este proyecto se desarrolla en tiempos extracurriculares. Las siguientes ideas representan posibilidades de evolución que requieren planificación adicional:
+
+**Ideas en Consideración**:
+- 🤔 Modelos de segmentación avanzada para tumores
+- 🤔 API REST para integración externa
+- 🤔 Expansión a otros tipos de análisis médico
+- 🤔 Mejoras en visualización y reporting
+- 🤔 Optimización de rendimiento y escalabilidad
+
+**Proyectos Complementarios Potenciales**:
+- 🫀 Análisis cardiovascular
+- 🧠 Detección de trastornos neurológicos
+- 🦴 Análisis ortopédico
+- 🩺 Sistema de apoyo a decisiones clínicas
+
+> La priorización y ejecución de estas ideas dependerá de:
+> - Disponibilidad de tiempo del autor
+> - Recursos computacionales disponibles
+> - Interés y feedback de la comunidad
+> - Aparición de nuevas tecnologías relevantes
 
 ---
 
-## 📊 Estadísticas del Proyecto
+## 📊 Estado Actual del Proyecto
 
-- **Proyectos Activos**: 1
-- **Proyectos Planificados**: 4
-- **Modelos Implementados**: 5+ arquitecturas
-- **Datasets Soportados**: 6+ colecciones de TCIA
+- **Tiempo de Desarrollo**: 2+ años (agosto 2023 - presente)
+- **Modalidad**: Desarrollo extracurricular con pausas intermitentes
+- **Proyectos Activos**: 1 (Cancer Analytics Platform)
+- **Modelos Implementados**: 5+ arquitecturas (CNN, ResNet, EfficientNet, ViT, Swin Transformer)
+- **Datasets Integrados**: 6+ colecciones de TCIA
 - **Tecnologías**: 15+ frameworks y librerías
+- **Tests**: 9 tests unitarios pasando
+- **Líneas de Código**: 5,000+ líneas (excl. notebooks)
 
 ---
 
@@ -350,8 +424,12 @@ Los datasets utilizados pueden tener sus propias licencias. Por favor, revisa y 
 
 **🚀 Únete a nosotros en el avance de la medicina asistida por IA**
 
-*Desarrollado con ❤️ para la comunidad de investigación médica y tecnológica*
+*Desarrollado con ❤️ por Luis Rai (lraigosov) para la comunidad de investigación médica y tecnológica*
 
 ---
 
-**Última actualización**: Noviembre 2025
+**👨‍💻 Creado por:** Luis Rai ([@lraigosov](https://github.com/lraigosov))  
+**📅 Última actualización**: Noviembre 2025  
+**©️ Copyright**: 2025 Luis Rai - Todos los derechos reservados
+
+---
