@@ -64,3 +64,6 @@ htmlcov/
 cancer/config/config.json
 cancer/plan_proyecto.md
 cancer/potenciar_proyecto.md
+
+# Articles directory (drafts and personal content)
+articles/
