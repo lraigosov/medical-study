@@ -1,19 +1,31 @@
 {
-  "_comment": "Archivo de ejemplo. Copie a config.json. GEMINI_API_KEY puede definirse por entorno.",
+  "_comment": "Archivo de ejemplo. Copie a config.json y configure sus valores. GEMINI_API_KEY puede definirse por variable de entorno.",
   "gemini": {
     "api_key": "",
-    "model": "gemini-1.5-pro",
+    "model": "gemini-2.5-flash",
     "temperature": 0.1,
-    "max_tokens": 4096
+    "max_tokens": 4096,
+    "retries": 2,
+    "backoff": 0.75
   },
   "tcia": {
     "base_url": "https://services.cancerimagingarchive.net/nbia-api/services/v1",
     "collections_url": "https://www.cancerimagingarchive.net/wp-json/wp/v2/collections",
     "download_path": "./data/raw",
-    "supported_formats": ["DICOM", "NIfTI", "ANALYZE"]
+    "supported_formats": ["DICOM", "NIfTI", "ANALYZE"],
+    "retries": 3,
+    "backoff": 0.75,
+    "timeout": 30.0,
+    "download_timeout": 120.0
   },
   "data": {
-    "target_collections": [],
+    "target_collections": [
+      "CMB-LCA",
+      "CMB-CRC",
+      "CMB-MEL",
+      "TCGA-BRCA",
+      "TCGA-LUAD"
+    ],
     "image_size": [224, 224],
     "batch_size": 32,
     "train_test_split": 0.8,
@@ -26,7 +38,8 @@
       "num_classes": 2,
       "learning_rate": 0.001,
       "epochs": 50,
-      "patience": 10
+      "patience": 10,
+      "batch_size": 32
     },
     "multiclass_detection": {
       "architecture": "EfficientNetB0",
@@ -34,7 +47,27 @@
       "num_classes": 5,
       "learning_rate": 0.0001,
       "epochs": 100,
-      "patience": 15
+      "patience": 15,
+      "batch_size": 32
+    },
+    "fusion": {
+      "base_model": "EfficientNetB0",
+      "input_shape": [224, 224, 3],
+      "num_classes": 2,
+      "radiomics_dim": 0,
+      "learning_rate": 0.001,
+      "epochs": 15,
+      "batch_size": 32,
+      "patience": 7,
+      "k_folds": 5,
+      "reduce_lr_patience": 3,
+      "reduce_lr_factor": 0.5,
+      "min_lr": 1e-6
+    },
+    "fine_tuning": {
+      "batch_size": 16,
+      "learning_rate_factor": 0.1,
+      "checkpoint_patience": 5
     }
   },
   "radiomics": {
@@ -47,5 +80,8 @@
     "level": "INFO",
     "format": "%(asctime)s - %(name)s - %(levelname)s - %(message)s",
     "file": "./logs/cancer_analysis.log"
+  },
+  "legal": {
+    "report_disclaimer": "Este contenido puede incluir información generada por IA con fines informativos y de apoyo. No constituye diagnóstico médico. Consulte siempre a un profesional de la salud para decisiones clínicas."
   }
 }
