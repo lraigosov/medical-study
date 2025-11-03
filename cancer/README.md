@@ -1,18 +1,99 @@
-# Cancer Analytics Platform
+# Cancer Analytics Platform 🔬
 
-## 🔬 Plataforma Integral de Análisis de Cáncer con IA
+<div align="center">
+
+![Python](https://img.shields.io/badge/python-3.8+-blue.svg)
+![TensorFlow](https://img.shields.io/badge/TensorFlow-2.0+-orange.svg)
+![License](https://img.shields.io/badge/license-MIT-green.svg)
+![Status](https://img.shields.io/badge/status-active-success.svg)
+
+**Plataforma Integral de Análisis de Cáncer con Inteligencia Artificial**
 
 Una completa plataforma de análisis de datos de cáncer que integra técnicas avanzadas de inteligencia artificial, análisis radiómico y procesamiento de imágenes médicas para el diagnóstico temprano y análisis detallado de diferentes tipos de cáncer.
 
-### 🎯 Características Principales
+[Características](#-características-principales) •
+[Instalación](#-instalación-y-configuración) •
+[Uso](#-uso-de-la-plataforma) •
+[Arquitectura](#️-arquitectura-del-proyecto) •
+[Documentación](#-componentes-principales)
 
-- **📊 Integración con TCIA**: Acceso directo a The Cancer Imaging Archive para obtener datasets reales
-- **🤖 Análisis con Gemini AI**: Integración con Google Gemini para análisis cualitativo de imágenes médicas
-- **🧠 Deep Learning**: Implementación de múltiples arquitecturas (CNN, Vision Transformers, modelos híbridos)
-- **🔬 Análisis Radiómico**: Extracción y análisis de características cuantitativas con PyRadiomics
-- **📱 Dashboard Interactivo**: Interfaz web completa usando Streamlit
-- **📓 Notebooks Interactivos**: Análisis exploratorio y entrenamiento de modelos
-- **⚙️ Configuración Flexible**: Sistema de configuración centralizado
+</div>
+
+---
+
+## 📸 Capturas del Dashboard
+
+<div align="center">
+
+### Vista Principal del Dashboard
+![Dashboard Principal](img/dashboard-home.png)
+
+*Dashboard interactivo con navegación intuitiva y visualizaciones en tiempo real*
+
+<br/>
+
+### Análisis con Modelos de IA
+![Modelos de IA](img/dashboard-models.png)
+
+*Comparación de múltiples arquitecturas de Deep Learning con métricas detalladas*
+
+<br/>
+
+### Análisis Radiómico y Visualizaciones
+![Análisis Radiómico](img/dashboard-analysis.png)
+
+*Análisis cuantitativo con extracción de características radiómicas y gráficos interactivos*
+
+</div>
+
+---
+
+## 🎯 Características Principales
+
+<table>
+<tr>
+<td width="50%">
+
+### 🤖 Inteligencia Artificial
+- **IA Generativa**: Integración con Google Gemini AI
+- **Deep Learning**: CNN, ResNet, EfficientNet, Vision Transformers
+- **Modelos Híbridos**: Fusión de arquitecturas para mejor rendimiento
+- **Análisis Multimodal**: Imagen + características radiómicas
+
+</td>
+<td width="50%">
+
+### 📊 Procesamiento de Datos
+- **Integración TCIA**: Acceso a The Cancer Imaging Archive
+- **Análisis Radiómico**: PyRadiomics para características cuantitativas
+- **DICOM Processing**: Manejo profesional de imágenes médicas
+- **Pipelines E2E**: Flujos automatizados de ingesta a entrenamiento
+
+</td>
+</tr>
+<tr>
+<td width="50%">
+
+### 🎨 Interfaces
+- **Dashboard Streamlit**: UI/UX optimizada con alto contraste
+- **Notebooks Jupyter**: Análisis exploratorio interactivo
+- **CLI**: Interfaz de línea de comandos para automatización
+- **API Programática**: Uso desde código Python
+
+</td>
+<td width="50%">
+
+### 🏗️ Arquitectura
+- **Hexagonal (Puertos y Adaptadores)**: Desacoplamiento limpio
+- **Dependency Injection**: Container para gestión de dependencias
+- **Tests Unitarios**: 9+ tests con cobertura de servicios y adaptadores
+- **Configuración Centralizada**: Sistema flexible con config.json
+
+</td>
+</tr>
+</table>
+
+---
 
 ### 🏗️ Arquitectura del Proyecto
 
@@ -20,38 +101,49 @@ El proyecto implementa **arquitectura hexagonal** (puertos y adaptadores) para s
 
 ```
 cancer/
-├── config/                      # Configuraciones
-│   └── config.json             # Configuración principal
-├── docs/                        # Documentación técnica
-│   ├── ARCHITECTURE_HEXAGONAL.md  # Guía de arquitectura
+├── config/                      # 🔧 Configuraciones
+│   └── config.json             #    Configuración centralizada
+├── docs/                        # 📚 Documentación técnica
+│   ├── ARCHITECTURE_HEXAGONAL.md  # Diseño de arquitectura
 │   ├── plan_proyecto.md           # Plan y requisitos
-│   └── potenciar_proyecto.md      # Instrucciones maestras
-├── src/                        # Código fuente
-│   ├── domain/                 # Entidades del dominio (hexagonal)
-│   ├── ports/                  # Interfaces/contratos (hexagonal)
-│   ├── application/            # Servicios de aplicación (hexagonal)
-│   ├── infrastructure/         # Adaptadores e implementaciones (hexagonal)
-│   │   ├── adapters/           # Adaptadores de puertos
-│   │   └── container.py        # DI container
-│   ├── utils/                  # Utilidades reutilizables
-│   │   ├── tcia_client.py      # Cliente TCIA
-│   │   ├── gemini_analyzer.py  # Analizador Gemini
-│   │   └── dicom_processor.py  # Procesador DICOM
-│   ├── models/                 # Modelos de IA
-│   │   └── cancer_detection.py # Modelos de detección
-│   ├── analysis/               # Análisis avanzado
-│   │   └── radiomics_analysis.py # Análisis radiómico
-│   ├── cli/                    # Interfaz de línea de comandos
-│   └── dashboard/              # Dashboard web
-│       └── simple_dashboard.py # Aplicación Streamlit
-├── notebooks/                  # Notebooks Jupyter
+│   └── potenciar_proyecto.md      # Instrucciones maestras para IA
+├── img/                         # 🖼️ Imágenes del README
+│   ├── dashboard-home.png
+│   ├── dashboard-models.png
+│   └── dashboard-analysis.png
+├── src/                         # 💻 Código fuente
+│   ├── domain/                  # 🏛️ Entidades del dominio (core)
+│   ├── ports/                   # 🔌 Interfaces/contratos
+│   ├── application/             # 📦 Servicios de aplicación
+│   ├── infrastructure/          # 🏗️ Adaptadores e implementaciones
+│   │   ├── adapters/            #    Adaptadores de puertos
+│   │   └── container.py         #    Dependency Injection Container
+│   ├── utils/                   # 🛠️ Utilidades
+│   │   ├── tcia_client.py       #    Cliente TCIA
+│   │   ├── gemini_analyzer.py   #    Analizador Gemini AI
+│   │   ├── dicom_processor.py   #    Procesador DICOM
+│   │   └── config_loader.py     #    Cargador de configuración
+│   ├── models/                  # 🧠 Modelos de Deep Learning
+│   │   └── cancer_detection.py  #    CNN, ResNet, ViT, híbridos
+│   ├── analysis/                # 🔬 Análisis avanzado
+│   │   └── radiomics_analysis.py # Extracción de features radiómicas
+│   ├── pipelines/               # 🔄 Pipelines E2E
+│   │   ├── tcia_ingest.py       #    Ingesta desde TCIA
+│   │   ├── extract_radiomics.py #    Extracción de características
+│   │   ├── nsclc_prepare.py     #    Pipeline NSCLC completo
+│   │   └── train_fusion.py      #    Entrenamiento multimodal
+│   ├── cli/                     # ⌨️ Interfaz de línea de comandos
+│   └── dashboard/               # 🎨 Dashboard web
+│       ├── simple_dashboard.py  #    Aplicación Streamlit
+│       └── container_loader.py  #    Loader sin imports relativos
+├── notebooks/                   # 📓 Notebooks Jupyter
 │   ├── 01_exploratory_data_analysis.ipynb
 │   ├── 02_radiomics_analysis.ipynb
 │   └── 03_model_training.ipynb
-├── results/                    # Resultados y modelos
-│   ├── models/                 # Modelos entrenados
-│   ├── reports/                # Reportes
-│   └── visualizations/         # Visualizaciones
+├── results/                     # 📊 Resultados y artefactos
+│   ├── models/                  #    Modelos entrenados (.h5)
+│   ├── reports/                 #    Reportes JSON
+│   └── visualizations/          #    Gráficos y figuras
 ├── data/                       # Datos
 │   ├── raw/                    # Datos crudos
 │   ├── processed/              # Datos procesados
