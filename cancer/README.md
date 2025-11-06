@@ -446,6 +446,17 @@ Para soporte, preguntas o sugerencias:
 - TensorFlow: https://www.tensorflow.org/
 - Streamlit: https://streamlit.io/
 
+### 📝 Nota sobre Documentación
+
+La documentación de este proyecto fue **optimizada con apoyo de IA Generativa**, aplicando un proceso riguroso de curación para garantizar:
+
+- ✅ **Precisión técnica**: Validación manual de todo contenido generado
+- ✅ **Coherencia arquitectural**: Correspondencia exacta con código e implementación real
+- ✅ **Eliminación de alucinaciones**: Filtrado de referencias incorrectas o no implementadas
+- ✅ **Relevancia contextual**: Información alineada con objetivos y capacidades del proyecto
+
+*La IA acelera la creación de contenido, el criterio experto asegura su veracidad.*
+
 ---
 
 **Desarrollado para el avance de la investigación en análisis de cáncer con IA** 🔬

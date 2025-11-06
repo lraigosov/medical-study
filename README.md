@@ -308,6 +308,17 @@ Los datasets utilizados pueden tener sus propias licencias. Por favor, revisa y 
 - PyRadiomics
 - Streamlit
 
+### Metodología de Documentación
+
+Este proyecto utiliza **IA Generativa como herramienta de apoyo** para optimizar y enriquecer la documentación técnica. Se implementó un proceso de curación riguroso para:
+
+- ✅ **Filtrar alucinaciones**: Validación manual de toda información generada
+- ✅ **Verificar coherencia**: Asegurar correspondencia con código y arquitectura reales
+- ✅ **Mantener precisión técnica**: Revisión experta de conceptos y terminología
+- ✅ **Evitar referencias incorrectas**: Eliminación de conceptos no implementados
+
+**Principio aplicado**: La IA generativa acelera la creación de contenido, pero el criterio humano garantiza la veracidad y relevancia de la documentación final.
+
 ---
 
 ## � Historia y Evolución del Proyecto
