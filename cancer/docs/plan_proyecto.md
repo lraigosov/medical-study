@@ -229,13 +229,12 @@ Crear un módulo interno `config/` con al menos:
   Parámetros de despliegue, nombres de buckets, rutas de almacenamiento, flags de activación de módulos, versiones mínimas de modelo aprobadas.
 
 * `config/secrets/`  (NUNCA versionado en Git)
-  Gestionado por un servicio seguro tipo secret manager / vault.
-  Variables críticas:
+  Variables críticas gestionadas por variables de entorno:
 
   * `GEMINI_API_KEY` → clave privada para llamadas a la IA generativa.
   * `MODEL_REGISTRY_URI` → conexión segura al registro de modelos.
   * `DB_CONN_STRING` → cadena de conexión cifrada para metadatos clínicos/auditoría.
-  * `EXTERNAL_DATA_TOKENS` → tokens o credenciales requeridas para acceder a fuentes abiertas con control de acceso (por ejemplo portales que piden registro gratuito).
+  * `EXTERNAL_DATA_TOKENS` → tokens para acceder a fuentes de datos abiertas.
 
 * `config/policies/`
   Reglas sobre retención, auditoría, niveles de acceso, licencias de datasets, disclaimers regulatorios para los reportes generados.
@@ -243,13 +242,8 @@ Crear un módulo interno `config/` con al menos:
 ### 6.2 Reglas obligatorias de secretos
 
 * Ninguna clave o credencial puede quedar hardcodeada en el código fuente, notebooks, prompts o logs.
-* Los contenedores/servicios deben leer secretos **sólo en runtime** vía variables de entorno inyectadas desde el secret manager o mediante llamadas autenticadas a un vault interno.
+* Los contenedores/servicios deben leer secretos **sólo en runtime** vía variables de entorno.
 * Debe existir rotación periódica de llaves y registro de uso.
-* El motor de IA generativa sólo puede invocarse a través de un microservicio interno `genai-reporter` con:`
-
-  * Entrada: resultados numéricos, imágenes anotadas, contexto clínico anonimizado.
-  * Salida: texto explicativo y reporte preliminar.
-* `genai-reporter` jamás debe almacenar la clave de la IA generativa en logs ni retornarla al cliente.
 
 ---
 
@@ -287,13 +281,7 @@ Crear un módulo interno `config/` con al menos:
    * Genera mapas de calor / explicaciones visuales.
    * Devuelve probabilidades y hallazgos estructurados.
 
-6. **genai-reporter**
-
-   * Llama al LLM (Gemini) para transformar las salidas numéricas en lenguaje clínico claro.
-   * Inserta el descargo legal obligatorio en cada respuesta.
-   * Devuelve reporte preliminar para el profesional de la salud.
-
-7. **audit-compliance**
+6. **audit-compliance**
 
    * Centraliza los logs de acceso, inferencia, versiones de modelo usadas y evidencia de cumplimiento.
    * Expone dashboard para auditores internos.
@@ -339,7 +327,7 @@ Crear un módulo interno `config/` con al menos:
 
 ### Fase 0. Fundaciones técnicas
 
-* Montar `config/` y secret manager.
+* Montar configuración centralizada.
 * Definir buckets/zones de datos (raw / curated / features).
 * Definir esquema base del registro de modelos.
 * Implementar autenticación y control de acceso básico.
@@ -362,9 +350,9 @@ Crear un módulo interno `config/` con al menos:
 * Implementar feature-level fusion o late fusion para combinar imagen + variables clínicas + marcadores moleculares.
 * Validar mejoras en sensibilidad para casos tempranos.
 
-### Fase 4. Interfaz Clínica + genai-reporter
+### Fase 4. Interfaz Clínica
 
-* Construir el Portal Clínico con carga de estudios, visualización heatmap y reporte preliminar en lenguaje natural generado por IA generativa (Gemini).
+* Construir el Portal Clínico con carga de estudios y visualización de resultados.
 * Incluir descargos legales automáticos.
 
 ### Fase 5. Cumplimiento y Auditoría End-to-End
@@ -401,22 +389,8 @@ Crear un módulo interno `config/` con al menos:
 * Autenticación MFA.
 * Control de acceso basado en rol.
 * Panel de auditoría disponible.
-* Secretos gestionados vía secret manager, nunca hardcodeados.
+* Secretos gestionados vía variables de entorno, nunca hardcodeados.
 * Todos los reportes incluyen descargo legal obligatorio.
-
----
-
-## 11. Resumen final para la IA generativa que va a construir esta plataforma
-
-1. Implementa las 6 capas (Ingesta → Lake/Catálogo → Feature Store → Entrenamiento/MLOps → Inferencia → UI).
-2. Integra IA generativa como microservicio `genai-reporter` que:
-
-   * Consume resultados numéricos e imágenes anotadas.
-   * Produce lenguaje clínico claro + descargo legal obligatorio.
-   * Usa `GEMINI_API_KEY` leída dinámicamente desde el secret manager.
-3. Garantiza gobernanza, trazabilidad, control de acceso y auditoría desde el día cero.
-4. Obliga a desidentificar datos sensibles antes de cualquier entrenamiento o inferencia.
-5. Toda salida debe considerarse apoyo clínico y jamás diagnóstico definitivo.
 
 ---
 
