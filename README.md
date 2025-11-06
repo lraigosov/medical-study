@@ -50,7 +50,6 @@ Plataforma integral de análisis de cáncer que integra:
 - 📖 [README del proyecto](./cancer/README.md) - Guía de inicio y uso
 - 🏗️ [Arquitectura Hexagonal](./cancer/docs/ARCHITECTURE_HEXAGONAL.md) - Diseño técnico
 - 📋 [Plan del Proyecto](./cancer/docs/plan_proyecto.md) - Requisitos y roadmap
-- 🚀 [Potenciar Proyecto](./cancer/docs/potenciar_proyecto.md) - Instrucciones maestras para IA
 
 ---
 

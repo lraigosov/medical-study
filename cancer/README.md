@@ -105,8 +105,7 @@ cancer/
 │   └── config.json             #    Configuración centralizada
 ├── docs/                        # 📚 Documentación técnica
 │   ├── ARCHITECTURE_HEXAGONAL.md  # Diseño de arquitectura
-│   ├── plan_proyecto.md           # Plan y requisitos
-│   └── potenciar_proyecto.md      # Instrucciones maestras para IA
+│   └── plan_proyecto.md           # Plan y requisitos
 ├── img/                         # 🖼️ Imágenes del README
 │   ├── dashboard-home.png
 │   ├── dashboard-models.png
@@ -158,7 +157,6 @@ cancer/
 **📚 Documentación adicional**:
 - 🏗️ [Arquitectura Hexagonal](./docs/ARCHITECTURE_HEXAGONAL.md) - Diseño, capas, flujos y extensibilidad
 - 📋 [Plan del Proyecto](./docs/plan_proyecto.md) - Requisitos y alcance
-- 🚀 [Potenciar Proyecto](./docs/potenciar_proyecto.md) - Instrucciones maestras para construcción con IA
 
 ### 🚀 Instalación y Configuración
 

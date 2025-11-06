@@ -62,8 +62,8 @@ htmlcov/
 
 # Project specific files - NEVER COMMIT THESE
 cancer/config/config.json
-cancer/plan_proyecto.md
-cancer/potenciar_proyecto.md
+cancer/docs/plan_proyecto.md
+cancer/docs/potenciar_proyecto.md
 
 # Articles directory (drafts and personal content)
 articles/
