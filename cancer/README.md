@@ -180,18 +180,25 @@ py -m venv .venv
 
 ```powershell
 pip install -r requirements.txt
+# Dev tools (opcional)
+pip install -r requirements-dev.txt
+# Extras (opcionales: radiómica avanzada, cache de requests)
+pip install -r requirements-extras.txt
 ```
 
-#### 4. Configurar API Keys
+#### 4. Configurar API Keys y entorno
 
-Recomendado: usa variable de entorno para no exponer la API key.
+Recomendado: usa variables de entorno (o `.env`) para no exponer la API key.
 
 ```powershell
 # Windows PowerShell (solo para esta sesión)
+\.\.venv\Scripts\Activate.ps1
 $env:GEMINI_API_KEY = "TU_API_KEY_AQUI"
+$env:LOG_LEVEL = "INFO"
 
 # Opcional: archivo .env en la carpeta cancer/
-"GEMINI_API_KEY=TU_API_KEY_AQUI" | Out-File -Encoding utf8 .env
+Copy-Item .env.example .env
+# Edita .env y agrega tu GEMINI_API_KEY
 ```
 
 Alternativamente, edita `config/config.json` y coloca la API key (menos seguro):
@@ -232,26 +239,44 @@ python -m src.pipelines.train_fusion --labels_csv data/processed/nsclc/train_nsc
    --image_col filepath --label_col label --epochs 15 --k_folds 5
 ```
 
-4) Ejecuta el dashboard y usa el flujo “🧠 Gemini AI” con tu modelo real:
+4) Ejecuta el dashboard:
 
 ```powershell
-streamlit run .\src\dashboard\dashboard.py
+streamlit run .\src\dashboard\simple_dashboard.py
 ```
+
+#### Perfiles CLI
+
+Para acelerar desarrollo y reducir costos, usa el perfil `dev` en la CLI:
+
+```powershell
+python -m src.cli.analyze .\path\to\image.png --type general --profile dev
+```
+
+Perfil `dev`:
+- Activa `GEMINI_DRY_RUN=1` (no llama API real)
+- Setea `LOG_LEVEL=DEBUG`
+
+Perfil `prod` (por defecto si no se especifica) usa configuración normal.
+
+### Ahorro de costos: DRY-RUN y Cache
+
+- Gemini Dry-Run (no llama API, útil para desarrollo):
+   - Configura en `config/config.json` → `gemini.dry_run: true` o usa `GEMINI_DRY_RUN=1`.
+- Cache TCIA (reduce llamadas HTTP y latencia):
+   - Activa en `tcia.cache.enabled: true`, ajusta `ttl_seconds` y `name`.
 
 #### Dashboard Web
 
 Ejecutar la aplicación Streamlit:
 
 ```powershell
-streamlit run .\src\dashboard\dashboard.py
+streamlit run .\src\dashboard\simple_dashboard.py
 ```
 
 El dashboard incluye:
 - **🏠 Inicio**: Vista general del proyecto
-- **�️ Análisis**: Subir imagen, ejecutar análisis con Gemini (arquitectura hexagonal), ver resultados con disclaimer
-- **📊 Datos**: Exploración de datos TCIA
-- **🤖 Modelos de IA**: Comparación y evaluación de modelos
-- **⚙️ Configuración**: Configuración del sistema
+- **🧠 Análisis**: Subir imagen y generar análisis con Gemini (dry-run disponible)
 
 #### Notebooks Jupyter
 
@@ -273,8 +298,10 @@ El dashboard incluye:
    ### 🧰 Pipelines disponibles
 
    - `python -m src.pipelines.tcia_ingest` — Descarga y procesa DICOM de una colección TCIA, genera `labels.csv` con metadatos y opcional `label` desde un campo.
+   - Flags nuevos: `--workers` para procesamiento paralelo de series.
    - `python -m src.pipelines.extract_radiomics` — Extrae features 2D (fallback) desde un CSV con `filepath` (mergea al vuelo si deseas).
    - `python -m src.pipelines.nsclc_prepare` — Orquesta ingesta TCIA + merge con CSV clínico + extracción de features → genera `train_nsclc.csv` listo para entrenar.
+   - Genera también `metrics.json` con timings y conteos.
    - `python -m src.pipelines.train_fusion` — Entrenamiento K-Fold del modelo multimodal; crea artefactos `.h5` + `training_summary.json` en `results/models/`.
 
 #### Uso Programático
@@ -383,6 +410,20 @@ La plataforma evalúa modelos usando:
 - **Procesamiento Local**: Análisis de datos en entorno controlado
 - **Anonimización**: Manejo apropiado de datos médicos
 - **Logging**: Registro de actividades para auditoría
+   - usa rotación de archivos configurable con `LOG_MAX_BYTES` y `LOG_BACKUP_COUNT` para evitar crecimiento ilimitado.
+
+### 🧪 Calidad de código (pre-commit)
+
+Instala y habilita pre-commit para mantener formato y calidad:
+
+```powershell
+pip install pre-commit
+pre-commit install
+# Ejecutar manualmente sobre todo el repo
+pre-commit run --all-files
+```
+
+Incluye hooks: `black`, `isort`, `flake8`, y `nbQA` para notebooks.
 
 ### 🚨 Consideraciones Médicas
 

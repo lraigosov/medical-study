@@ -12,6 +12,11 @@ from pathlib import Path
 import pandas as pd
 
 from .config_loader import load_config, configure_logging, project_path
+try:
+    import requests_cache  # type: ignore
+    _REQ_CACHE_AVAILABLE = True
+except Exception:  # noqa: BLE001
+    _REQ_CACHE_AVAILABLE = False
 
 class TCIAClient:
     """Cliente para interactuar con la API REST de TCIA."""
@@ -35,6 +40,21 @@ class TCIAClient:
         # Configurar logging
         self.logger = configure_logging(cfg)
         self.logger = logging.getLogger(__name__)
+
+        # Configurar cache opcional de requests para reducir llamadas y costos
+        cache_cfg = tcia_cfg.get("cache", {})
+        cache_enabled = bool(cache_cfg.get("enabled", False))
+        cache_ttl = float(cache_cfg.get("ttl_seconds", 600.0))
+        cache_name = str(cache_cfg.get("name", str(project_path(".cache", "tcia_requests"))))
+        if cache_enabled and _REQ_CACHE_AVAILABLE:
+            try:
+                Path(cache_name).parent.mkdir(parents=True, exist_ok=True)
+                requests_cache.install_cache(cache_name, expire_after=cache_ttl)
+                self.logger.info(f"TCIAClient: cache habilitado (ttl={cache_ttl}s, name={cache_name})")
+            except Exception as e:  # noqa: BLE001
+                self.logger.warning(f"No se pudo habilitar cache de requests: {e}")
+        elif cache_enabled and not _REQ_CACHE_AVAILABLE:
+            self.logger.warning("requests-cache no instalado; deshabilitando cache. Instala 'requests-cache' o usa requirements-extras.")
 
     def _request_with_retry(
         self,

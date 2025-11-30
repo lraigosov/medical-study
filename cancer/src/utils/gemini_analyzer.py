@@ -151,6 +151,16 @@ class GeminiAnalyzer:
             prompt = self._generate_prompt(analysis_type)
             
             # Realizar análisis
+            if self.dry_run:
+                self.logger.info("[DRY-RUN] analyze_medical_image: simulando respuesta sin llamada a Gemini")
+                return {
+                    'success': True,
+                    'gemini_response': self._append_disclaimer(
+                        f"[DRY-RUN] type={analysis_type}, image={image_path}, prompt_len={len(prompt)}"
+                    ),
+                    'model_used': self.config.get('gemini', {}).get('model', ''),
+                    'dry_run': True,
+                }
             if not GENAI_AVAILABLE:
                 raise RuntimeError(GENAI_UNAVAILABLE_MSG)
 
@@ -216,6 +226,16 @@ class GeminiAnalyzer:
             Resultados de la comparación
         """
         try:
+            if self.dry_run:
+                self.logger.info("[DRY-RUN] compare_images: simulando respuesta sin llamada a Gemini")
+                return {
+                    'success': True,
+                    'gemini_response': self._append_disclaimer(
+                        f"[DRY-RUN] type={comparison_type}, image1={image_path_1}, image2={image_path_2}"
+                    ),
+                    'model_used': self.config.get('gemini', {}).get('model', ''),
+                    'dry_run': True,
+                }
             # Cargar imágenes
             image1 = Image.open(image_path_1)
             image2 = Image.open(image_path_2)

@@ -14,6 +14,8 @@ Filtrado por modalidad:
 from __future__ import annotations
 
 import argparse
+import concurrent.futures
+import time
 import json
 from pathlib import Path
 import sys
@@ -89,6 +91,7 @@ def main() -> int:
     parser.add_argument("--label-by", type=str, default=None, help="Campo de metadatos para etiqueta (e.g., BodyPartExamined, Modality, SeriesDescription)")
     parser.add_argument("--label-map", type=str, default=None, help="JSON con mapeo valor->etiqueta")
     parser.add_argument("--label-map-file", type=str, default=None, help="Ruta a JSON con mapeo valor->etiqueta")
+    parser.add_argument("--workers", type=int, default=4, help="Número de hilos para procesamiento paralelo")
     args = parser.parse_args()
 
     logger = configure_logging()
@@ -105,18 +108,32 @@ def main() -> int:
     patients = client.get_patients(args.collection)[: args.max_patients]
     rows: List[Dict[str, str]] = []
 
+    def _process_one_series(series_uid: str) -> List[Dict[str, str]]:
+        try:
+            zip_path = client.download_series(series_uid)
+            if not zip_path:
+                return []
+            target_dir = out_images / args.collection / series_uid
+            target_dir.mkdir(parents=True, exist_ok=True)
+            return _rows_from_series(processor, zip_path, target_dir, args.label_by, label_map)
+        except Exception as e:  # noqa: BLE001
+            logger.error(f"Fallo procesando serie {series_uid}: {e}")
+            return []
+
+    work_items: List[str] = []
     for p in patients:
         pid = p.get("PatientID", "")
         for s in _series_for_patient(client, args.collection, pid, args.modality, args.max_series):
-            series_uid = s.get("SeriesInstanceUID", "")
-            if not series_uid:
-                continue
-            zip_path = client.download_series(series_uid)
-            if not zip_path:
-                continue
-            target_dir = out_images / args.collection / series_uid
-            target_dir.mkdir(parents=True, exist_ok=True)
-            rows.extend(_rows_from_series(processor, zip_path, target_dir, args.label_by, label_map))
+            uid = s.get("SeriesInstanceUID", "")
+            if uid:
+                work_items.append(uid)
+
+    start_time = time.time()
+    with concurrent.futures.ThreadPoolExecutor(max_workers=max(1, args.workers)) as ex:
+        for result in ex.map(_process_one_series, work_items):
+            rows.extend(result)
+    elapsed = time.time() - start_time
+    logger.info(f"Procesado paralelo de {len(work_items)} series en {elapsed:.2f}s con {args.workers} hilos")
 
     if not rows:
         logger.error("No se generaron filas; verifique colección/modality/parametría")
