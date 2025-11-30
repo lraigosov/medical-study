@@ -17,6 +17,8 @@ Luego entrenar:
 from __future__ import annotations
 
 import argparse
+import json
+import time
 from pathlib import Path
 import sys
 import pandas as pd
@@ -98,12 +100,14 @@ def main() -> int:
     processor = DICOMProcessor()
 
     # 1) Descargar/Procesar -> labels_nsclc.csv con metadatos
+    t0 = time.time()
     meta_df = _collect_metadata(client, processor,
                                 collection=args.collection,
                                 modality=args.modality,
                                 max_patients=args.max_patients,
                                 max_series=args.max_series,
                                 images_dir=images_dir)
+    t1 = time.time()
     labels_csv = out_dir / "labels_nsclc.csv"
     if meta_df.empty:
         logger.error("No se generaron imágenes/metadata. Ajuste parámetros.")
@@ -121,15 +125,33 @@ def main() -> int:
     merged.to_csv(labeled_csv, index=False)
 
     # 3) Extraer radiomics (fallback) -> radiomics_nsclc.csv y merge final
+    t2 = time.time()
     feats_df = _compute_radiomics(merged)
     feats_csv = out_dir / "radiomics_nsclc.csv"
     feats_df.to_csv(feats_csv, index=False)
+    t3 = time.time()
 
     final_df = merged.merge(feats_df, on="filepath", how="left")
     train_csv = out_dir / "train_nsclc.csv"
     final_df.to_csv(train_csv, index=False)
 
-    logger.info(f"Preparación completada. CSV final: {train_csv} con {len(final_df)} filas")
+    # Emitir métricas de pipeline
+    metrics = {
+        "collection": args.collection,
+        "modality": args.modality,
+        "patients": int(args.max_patients),
+        "series_per_patient": int(args.max_series),
+        "rows_metadata": int(len(meta_df)),
+        "rows_final": int(len(final_df)),
+        "timings_sec": {
+            "metadata": round(t1 - t0, 2),
+            "merge_clinical": round(t2 - t1, 2),
+            "radiomics": round(t3 - t2, 2),
+            "total": round(time.time() - t0, 2)
+        }
+    }
+    (out_dir / "metrics.json").write_text(json.dumps(metrics, indent=2), encoding="utf-8")
+    logger.info(f"Preparación completada. CSV final: {train_csv} con {len(final_df)} filas. Métricas en {out_dir / 'metrics.json'}")
     return 0
 
 

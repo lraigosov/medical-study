@@ -5,6 +5,7 @@
     "model": "gemini-2.5-flash",
     "temperature": 0.1,
     "max_tokens": 4096,
+    "dry_run": false,
     "retries": 2,
     "backoff": 0.75
   },
@@ -16,7 +17,8 @@
     "retries": 3,
     "backoff": 0.75,
     "timeout": 30.0,
-    "download_timeout": 120.0
+    "download_timeout": 120.0,
+    "cache": { "enabled": true, "ttl_seconds": 600, "name": ".cache/tcia_requests" }
   },
   "data": {
     "target_collections": [

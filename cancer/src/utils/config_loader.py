@@ -5,6 +5,8 @@ Todos los módulos deben usar este loader para acceder a la configuración centr
 
 import json
 import logging
+import os
+from logging.handlers import RotatingFileHandler
 from pathlib import Path
 from typing import Any, Dict, Optional
 
@@ -25,12 +27,29 @@ def load_config(path: Optional[Path] = None) -> Dict[str, Any]:
         Diccionario con la configuración completa del proyecto.
     """
     cfg_path = Path(path) if path else CONFIG_PATH
+    cfg: Dict[str, Any] = {}
     if cfg_path.exists():
         try:
-            return json.loads(cfg_path.read_text(encoding="utf-8"))
+            cfg = json.loads(cfg_path.read_text(encoding="utf-8"))
         except Exception as exc:
             raise RuntimeError(f"Error leyendo configuración: {exc}") from exc
-    return {}
+
+    # Overrides por entorno para credenciales y parámetros sensibles
+    # GEMINI_API_KEY tiene prioridad sobre config.json
+    env_api_key = os.getenv("GEMINI_API_KEY")
+    if env_api_key:
+        gem = cfg.get("gemini", {})
+        gem["api_key"] = env_api_key
+        cfg["gemini"] = gem
+
+    # Nivel de logging por entorno, e.g. LOG_LEVEL=DEBUG
+    env_log_level = os.getenv("LOG_LEVEL")
+    if env_log_level:
+        log_cfg = cfg.get("logging", {})
+        log_cfg["level"] = env_log_level
+        cfg["logging"] = log_cfg
+
+    return cfg
 
 
 def configure_logging(config: Optional[Dict[str, Any]] = None) -> logging.Logger:
@@ -51,7 +70,7 @@ def configure_logging(config: Optional[Dict[str, Any]] = None) -> logging.Logger
     if logger.handlers:
         return logger
     
-    level_name = str(logging_cfg.get("level", "INFO")).upper()
+    level_name = str(logging_cfg.get("level", os.getenv("LOG_LEVEL", "INFO"))).upper()
     level = getattr(logging, level_name, logging.INFO)
     logger.setLevel(level)
     
@@ -66,7 +85,8 @@ def configure_logging(config: Optional[Dict[str, Any]] = None) -> logging.Logger
     try:
         LOGS_DIR.mkdir(parents=True, exist_ok=True)
         log_file = logging_cfg.get("file", str(LOGS_DIR / "cancer_analysis.log"))
-        fh = logging.FileHandler(log_file, encoding="utf-8")
+        # Rotación para evitar crecimiento ilimitado del log (costos/espacio)
+        fh = RotatingFileHandler(log_file, maxBytes=int(os.getenv("LOG_MAX_BYTES", "1048576")), backupCount=int(os.getenv("LOG_BACKUP_COUNT", "3")), encoding="utf-8")
         fh.setFormatter(fmt)
         logger.addHandler(fh)
     except Exception:  # noqa: BLE001

@@ -1,8 +1,8 @@
 # Medical Study Repository
 
-## 🏥 Repositorio de Proyectos de Investigación Médica con IA
+## 🏥 Repositorio de Investigación Médica con IA
 
-Este repositorio contiene proyectos de investigación en el campo de la medicina asistida por inteligencia artificial, enfocándose en análisis de imágenes médicas, diagnóstico temprano y análisis de datos clínicos.
+Este repositorio contiene la plataforma principal `cancer/` orientada a análisis de imágenes médicas y flujos de preparación/entrenamiento.
 
 ---
 
@@ -25,73 +25,28 @@ medical-study/
 
 ---
 
-## 🚀 Proyectos Actuales
+## 🚀 Proyecto Actual
 
-### 1. 🔬 [Cancer Analytics Platform](./cancer/)
+### 🔬 [Cancer Analytics Platform](./cancer/)
 
-**Estado**: ✅ Activo y en desarrollo
+Componentes confirmados (según código existente):
+- Arquitectura hexagonal (puertos/adaptadores/servicios) en `cancer/src`
+- Cliente TCIA (`src/utils/tcia_client.py`) y procesador DICOM (`src/utils/dicom_processor.py`)
+- Integración Gemini (`src/utils/gemini_analyzer.py`) con soporte de dry-run
+- Pipelines: `tcia_ingest.py`, `extract_radiomics.py`, `nsclc_prepare.py`, `train_fusion.py`
+- Modelos: `src/models/fusion_model.py`, `src/models/cancer_detection.py`
+- Dashboard Streamlit: `src/dashboard/simple_dashboard.py`
+- Tests unitarios en `cancer/tests/` (actualmente 14 pasando)
 
-Plataforma integral de análisis de cáncer que integra:
-- Arquitectura hexagonal (puertos y adaptadores)
-- Acceso a The Cancer Imaging Archive (TCIA)
-- Análisis con Google Gemini AI
-- Modelos de Deep Learning (CNN, Vision Transformers)
-- Análisis radiómico con PyRadiomics
-- Dashboard interactivo con Streamlit
-- Tests unitarios completos
-
-**Casos de uso**:
-- Detección temprana de diferentes tipos de cáncer
-- Análisis cuantitativo de características radiómicas
-- Clasificación de imágenes médicas
-- Análisis cualitativo con IA generativa
-
-**Documentación**:
-- 📖 [README del proyecto](./cancer/README.md) - Guía de inicio y uso
-- 🏗️ [Arquitectura Hexagonal](./cancer/docs/ARCHITECTURE_HEXAGONAL.md) - Diseño técnico
-- 📋 [Plan del Proyecto](./cancer/docs/plan_proyecto.md) - Requisitos y roadmap
+Documentación relevante:
+- 📖 [README del proyecto](./cancer/README.md)
+- 🏗️ [Arquitectura Hexagonal](./cancer/docs/ARCHITECTURE_HEXAGONAL.md)
 
 ---
 
-## 💭 Ideas para Futuros Proyectos
+## Alcance
 
-> **Nota importante**: Los siguientes proyectos son **conceptos en fase exploratoria**. Su desarrollo dependerá de la disponibilidad de tiempo, recursos y prioridades del autor.
-
-### 2. 🫀 Cardiovascular Disease Analysis
-**Estado**: � Idea conceptual
-
-Posible análisis de enfermedades cardiovasculares:
-- Procesamiento de ECG con Deep Learning
-- Análisis de imágenes ecocardiográficas
-- Predicción de riesgo cardiovascular
-
-### 3. 🧠 Neurological Disorders Detection
-**Estado**: � Idea conceptual
-
-Potencial detección de trastornos neurológicos:
-- Análisis de resonancias magnéticas cerebrales
-- Detección temprana de Alzheimer y Parkinson
-- Segmentación de lesiones cerebrales
-
-### 4. 🦴 Orthopedic Analysis
-**Estado**: � Idea conceptual
-
-Posible análisis ortopédico:
-- Detección de fracturas en rayos X
-- Clasificación de lesiones musculoesqueléticas
-- Análisis de densidad ósea
-
-### 5. 🩺 Clinical Decision Support System
-**Estado**: � Idea conceptual
-
-Sistema de apoyo a decisiones clínicas (largo plazo):
-- Integración de datos multimodales
-- Predicción de diagnósticos diferenciales
-- Recomendaciones basadas en evidencia
-
----
-
-**⚠️ Aclaración sobre proyectos futuros**: Estos representan áreas de interés, pero su implementación requiere planificación cuidadosa y no tienen fechas estimadas. El foco actual es consolidar y mejorar el Cancer Analytics Platform.
+Este índice describe únicamente elementos presentes en el repositorio. No se listan proyectos o funcionalidades no implementadas.
 
 ---
 
@@ -142,44 +97,23 @@ git clone https://github.com/lraigosov/medical-study.git
 cd medical-study
 ```
 
-### Configurar un Proyecto
+### Configurar `cancer/`
 
-Cada proyecto tiene su propio README con instrucciones específicas:
-
-```bash
-# Ejemplo: Cancer Analytics Platform
+```powershell
 cd cancer
-python -m venv .venv
-
-# Windows
+py -m venv .venv
 .\.venv\Scripts\Activate.ps1
-
-# Linux/Mac
-source .venv/bin/activate
-
-# Instalar dependencias
 pip install -r requirements.txt
+```
+# Ejecutar tablero:
+streamlit run .\cancer\src\dashboard\simple_dashboard.py
 ```
 
 ---
 
-## 📚 Recursos y Datasets
+## Recursos
 
-### Fuentes de Datos Médicos
-
-- **[The Cancer Imaging Archive (TCIA)](https://www.cancerimagingarchive.net/)**: Imágenes de cáncer
-- **[PhysioNet](https://physionet.org/)**: Señales fisiológicas y ECG
-- **[ADNI](http://adni.loni.usc.edu/)**: Neuroimágenes de Alzheimer
-- **[MIMIC-III](https://mimic.physionet.org/)**: Datos clínicos de UCI
-- **[NIH Chest X-ray Dataset](https://www.nih.gov/news-events/news-releases/nih-clinical-center-provides-one-largest-publicly-available-chest-x-ray-datasets-scientific-community)**: Radiografías de tórax
-- **[UK Biobank](https://www.ukbiobank.ac.uk/)**: Datos de salud poblacional
-
-### Documentación y Papers
-
-- **ArXiv**: Últimas investigaciones en AI médica
-- **PubMed**: Literatura médica
-- **Papers With Code**: Implementaciones de papers
-- **Grand Challenge**: Competencias de imágenes médicas
+- **[The Cancer Imaging Archive (TCIA)](https://www.cancerimagingarchive.net/)**
 
 ---
 
@@ -320,7 +254,7 @@ Este proyecto utiliza **IA Generativa como herramienta de apoyo** para optimizar
 
 ---
 
-## � Historia y Evolución del Proyecto
+## Historia y Evolución del Proyecto
 
 ### 🕐 Línea de Tiempo
 
@@ -347,14 +281,11 @@ Este proyecto utiliza **IA Generativa como herramienta de apoyo** para optimizar
 - Salto cualitativo en capacidades de análisis
 - Nueva visión del potencial del proyecto
 
-**2025 (Actual)** - Estado consolidado
-- ✅ Plataforma Cancer Analytics plenamente funcional
-- ✅ Dashboard interactivo con UI/UX optimizada
-- ✅ Integración dual: Deep Learning + IA Generativa
-- ✅ 6+ datasets de TCIA configurados y operativos
-- ✅ Suite de 9 tests unitarios pasando
-- ✅ Documentación técnica completa y profesional
-- ✅ Arquitectura hexagonal robusta y escalable
+**2025 (Actual)**
+- Plataforma `cancer/` operativa con arquitectura hexagonal
+- Dashboard Streamlit disponible (`simple_dashboard.py`)
+- Integración de pipelines y utilidades confirmadas
+- Suite de tests: 14 pasando
 
 ### 🔮 Posible Evolución Futura
 
@@ -394,47 +325,15 @@ Este proyecto utiliza **IA Generativa como herramienta de apoyo** para optimizar
 
 ---
 
-## 🌟 Características Destacadas
+## Uso rápido (Dashboard y CLI)
 
-### ✨ Lo que hace especial este repositorio
+```powershell
+# Dashboard Streamlit
+streamlit run .\cancer\src\dashboard\simple_dashboard.py
 
-- **🔬 Enfoque Multidisciplinario**: Combina IA, medicina y análisis de datos
-- **🤖 IA de Última Generación**: Implementaciones de modelos state-of-the-art
-- **📊 Análisis Completo**: Desde preprocesamiento hasta evaluación
-- **🎨 Visualizaciones Interactivas**: Dashboards y gráficos avanzados
-- **📚 Documentación Exhaustiva**: Guías completas y ejemplos
-- **🔒 Seguridad Primero**: Prácticas de seguridad y privacidad
-- **🌐 Open Source**: Código abierto para la comunidad
-
----
-
-## 💡 Casos de Uso
-
-### Para Investigadores
-- Experimentación con nuevos modelos de IA médica
-- Análisis de datasets médicos públicos
-- Desarrollo de pipelines de procesamiento
-
-### Para Estudiantes
-- Aprendizaje de IA aplicada a medicina
-- Proyectos de tesis o trabajos finales
-- Práctica con datos médicos reales
-
-### Para Desarrolladores
-- Implementación de soluciones de salud digital
-- Integración de IA en aplicaciones médicas
-- Prototipado rápido de ideas
-
-### Para Instituciones
-- Base para sistemas de apoyo clínico
-- Investigación colaborativa
-- Validación de hipótesis médicas
-
----
-
-**🚀 Únete a nosotros en el avance de la medicina asistida por IA**
-
-*Desarrollado con ❤️ por Luis Rai (lraigosov) para la comunidad de investigación médica y tecnológica*
+# CLI de análisis (perfil dev activa dry-run)
+python -m src.cli.analyze .\cancer\data\processed\nsclc_small\images\<imagen>.png --type general --profile dev
+```
 
 ---
 

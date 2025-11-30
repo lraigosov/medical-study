@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import time
 from pathlib import Path
 import sys
 from typing import List, Optional
@@ -76,19 +77,27 @@ def main() -> int:
     # Radiomics opcional
     radiomics_cols: Optional[List[str]] = args.radiomics_cols if args.radiomics_cols else None
 
+    t0 = time.time()
     summary = model.fit_kfold(
         df=df,
         image_col=args.image_col,
         label_col=args.label_col,
         radiomics_cols=radiomics_cols,
     )
+    elapsed = time.time() - t0
 
     out_path = model.run_dir / "summary_min.json"
+    metrics = {
+        "best_val_accuracy": summary.get("best_val_accuracy"),
+        "best_model_path": summary.get("best_model_path"),
+        "k_folds": args.k_folds,
+        "epochs": args.epochs,
+        "batch_size": args.batch_size,
+        "elapsed_sec": round(elapsed, 2),
+        "n_samples": int(len(df)),
+    }
     with open(out_path, "w", encoding="utf-8") as f:
-        json.dump({
-            "best_val_accuracy": summary.get("best_val_accuracy"),
-            "best_model_path": summary.get("best_model_path"),
-        }, f, indent=2)
+        json.dump(metrics, f, indent=2)
 
     logger.info(f"Entrenamiento finalizado. Mejor modelo: {summary.get('best_model_path')}")
     return 0
